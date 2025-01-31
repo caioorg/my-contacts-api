@@ -3,17 +3,36 @@ const db = require("../../infrastructure/database/connection");
 class ContactRepository {
   async findAll(orderBy = "ASC") {
     const direction = orderBy?.toUpperCase() === "DESC" ? "DESC" : "ASC";
-    const rows = db.query(`SELECT * FROM contacts ORDER BY name ${direction}`);
+    const rows = db.query(`
+        SELECT contacts.*, categories.name AS category_name
+        FROM contacts
+        LEFT JOIN categories ON categories.id = contacts.category_id
+        ORDER BY contacts.name ${direction}
+      `);
     return rows;
   }
 
   async findById(id) {
-    const [row] = db.query("SELECT * FROM contacts WHERE id = $1", [id]);
+    const [row] = db.query(
+      `
+      SELECT contacts.*, categories.name AS category_name
+      FROM contacts
+      LEFT JOIN categories ON categories.id = contacts.category_id
+      WHERE contacts.id = $1`,
+      [id]
+    );
     return row;
   }
 
   async findByEmail(email) {
-    const [row] = db.query("SELECT * FROM contacts WHERE email = $1", [email]);
+    const [row] = db.query(
+      `
+      SELECT contacts.*, categories.name AS category_name
+      FROM contacts
+      LEFT JOIN categories ON categories.id = contacts.category_id
+      WHERE contacts.email = $1`,
+      [email]
+    );
     return row;
   }
 
